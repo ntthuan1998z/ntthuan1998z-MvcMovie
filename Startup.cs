@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MvcMovie.Data;
 using MvcMovie.Models;
+using MvcMovie.Services;
 
 namespace MvcMovie
 {
@@ -26,6 +27,7 @@ namespace MvcMovie
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddScoped<IMovieService,MovieService>();
             services.AddDbContext<MovieContext>(options => options.UseSqlite("Data Source=Movie.db"));
             services.AddControllersWithViews();
         }
@@ -69,7 +71,13 @@ namespace MvcMovie
                 if(!context.Movies.Any()) {
                     context.Movies.AddRange(
                         new Movie {
-                            Title = "WHen sary meet Hary"
+                            Title = "WHen sary meet Hary",
+                            Genre = "Comedy"
+
+                        },
+                        new Movie {
+                            Title = "WHen sary meet Hary 2",
+                            Genre = "Comedy2"
                         }
                     );
                     context.SaveChanges();

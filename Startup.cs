@@ -5,9 +5,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MvcMovie.Data;
+using MvcMovie.Models;
 
 namespace MvcMovie
 {
@@ -23,12 +26,15 @@ namespace MvcMovie
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<MovieContext>(options => options.UseSqlite("Data Source=Movie.db"));
             services.AddControllersWithViews();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            SeedData(app);
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -52,6 +58,23 @@ namespace MvcMovie
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+
+        private void SeedData(IApplicationBuilder app)
+        {
+            using (var scope = app.ApplicationServices.CreateScope()) {
+                var context = scope.ServiceProvider.GetRequiredService<MovieContext>();
+                context.Database.EnsureCreated();
+
+                if(!context.Movies.Any()) {
+                    context.Movies.AddRange(
+                        new Movie {
+                            Title = "WHen sary meet Hary"
+                        }
+                    );
+                    context.SaveChanges();
+                }
+            }
         }
     }
 }
